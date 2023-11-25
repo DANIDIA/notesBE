@@ -17,9 +17,20 @@ builder.Services.Configure<NotesDatabaseSettings>((settings) =>
     settings.ArticlesCollectionName = fileConfig.GetSection("ArticlesCollectionName").Value;
 });
 
+var specificOrigin = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(specificOrigin, policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3000/");
+        policy.AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSingleton<ArticlesService>();
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "notesBE", Version = "v1" });
@@ -34,6 +45,11 @@ app.UseSwaggerUI(options => {
 });
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseCors(specificOrigin);
+
 app.UseAuthorization();
 app.MapControllers();
 
