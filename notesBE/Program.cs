@@ -24,16 +24,30 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "notesBE", Version = "v1" });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(options => {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "notesBE v1");
-    options.RoutePrefix = string.Empty;
-});
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options => {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "notesBE v1");
+        options.RoutePrefix = string.Empty;
+    });
+}
 
 app.UseHttpsRedirection();
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
 
