@@ -17,39 +17,37 @@ builder.Services.Configure<NotesDatabaseSettings>((settings) =>
     settings.ArticlesCollectionName = fileConfig.GetSection("ArticlesCollectionName").Value;
 });
 
-var specificOrigin = "_myAllowSpecificOrigins";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(specificOrigin, policy =>
-    {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3000/");
-        policy.AllowAnyHeader().AllowAnyMethod();
-    });
-});
-
 builder.Services.AddSingleton<ArticlesService>();
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "notesBE", Version = "v1" });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(options => {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "notesBE v1");
-    options.RoutePrefix = string.Empty;
-});
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options => {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "notesBE v1");
+        options.RoutePrefix = string.Empty;
+    });
+}
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-
-app.UseCors(specificOrigin);
-
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
 
