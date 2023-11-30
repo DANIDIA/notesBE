@@ -9,4 +9,4 @@ C# & ASP.NET Core, [MongoDB](https://www.mongodb.com/)
 
 ## Integration
 
-Hosted by [Somee.com](https://somee.com/)
+Hosted on [Somee.com](https://somee.com/)
